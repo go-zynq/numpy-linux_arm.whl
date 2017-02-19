@@ -1,0 +1,13 @@
+box: go-zynq/numpy-linux_arm.whl
+no-response-timeout: 60
+build:
+  steps:
+  - script:
+    name: QUMU setup for ARM
+    code: |
+      docker run --rm --privileged multiarch/qemu-user-static:register --reset
+  - script:
+    name: QUMU setup for ARM
+    code: |
+      python3 -m pip install numpy
+      python3 -m pip wheel numpy
