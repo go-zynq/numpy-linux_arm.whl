@@ -1,4 +1,6 @@
-box: go-zynq/numpy-linux_arm.whl
+box:
+  id: alpine:3.5
+  cmd: /bin/sh
 no-response-timeout: 60
 build:
   steps:
