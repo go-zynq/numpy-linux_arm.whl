@@ -11,10 +11,6 @@ RUN \
   && (cd /usr/include && ln -s locale.h xlocale.h) \
   ;
 
-# bash needed by the steps on Wercker CI
-RUN apk add --no-cache --update \
-  bash \
-  ;
 CMD \
   python3 -m pip install numpy \
   && python3 -m pip wheel numpy \

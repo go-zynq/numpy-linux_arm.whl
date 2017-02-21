@@ -1,0 +1,31 @@
+sudo: required
+services:
+- docker
+before_install:
+# prepare qemu
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# get qemu-arm-static binary
+- mkdir tmp
+- >
+  pushd tmp &&
+  curl -L -o qemu-arm-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/v2.6.0/qemu-arm-static.tar.gz &&
+  tar xzf qemu-arm-static.tar.gz &&
+  popd
+script:
+# build image
+- docker build -t ${TRAVIS_REPO_SLUG}:build .
+# test image
+- docker run -id --name build ${TRAVIS_REPO_SLUG}:build sh
+- docker exec build python3 -m pip install numpy
+- docker exec build python3 -m pip wheel numpy
+after_success:
+# push image
+- >
+  if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u="${DOCKER_USER}" -p="${DOCKER_PASS}"
+    TAG=$(grep "FROM " Dockerfile | sed 's/.*://')
+    docker tag ${TRAVIS_REPO_SLUG}:build ${TRAVIS_REPO_SLUG}:${TAG}
+    docker tag ${TRAVIS_REPO_SLUG}:build ${TRAVIS_REPO_SLUG}:latest
+    docker push ${TRAVIS_REPO_SLUG}:${TAG}
+    docker push ${TRAVIS_REPO_SLUG}:latest
+  fi
