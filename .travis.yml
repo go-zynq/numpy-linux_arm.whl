@@ -16,7 +16,7 @@ script:
 - docker build -t ${TRAVIS_REPO_SLUG}:build .
 # test image
 - docker run -id --name build ${TRAVIS_REPO_SLUG}:build sh
-- docker exec build python3 -m pip install numpy
+- docker exec build python3 -m pip install --verbose numpy
 - docker exec build python3 -m pip wheel numpy
 after_success:
 # push image
