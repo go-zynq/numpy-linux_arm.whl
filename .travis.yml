@@ -1,6 +1,8 @@
 sudo: required
 services:
 - docker
+env:
+- DOCKER_HUB_REPO_SLUG="${TRAVIS_REPO_SLUG#*-}"
 before_install:
 # prepare qemu
 - docker run --rm --privileged multiarch/qemu-user-static:register --reset
@@ -13,17 +15,22 @@ before_install:
   popd
 script:
 # build image
-- docker build -t ${TRAVIS_REPO_SLUG}:build .
+- docker build -t ${DOCKER_HUB_REPO_SLUG}:build .
 # test image
-- docker run -id --name build ${TRAVIS_REPO_SLUG}:build sh
+- docker run -id --name build ${DOCKER_HUB_REPO_SLUG}:build sh
+- export NUMPY_VERSION=`docker exec build env|grep NUMPY_VERSION|awk -F = '{print $2}'`
 - >
-  export NUMPY_VERSION=`docker exec build env|grep NUMPY_VERSION|awk -F = '{print $2}'` &&
-  docker exec build python3 -m pip install --verbose numpy==${NUMPY_VERSION}
-- docker exec build python3 -m pip wheel numpy
+  if [ "${TRAVIS_BRANCH}" != "master" ]; then
+    docker exec build python3 -m pip install --verbose numpy==${NUMPY_VERSION}
+  fi
+- >
+  if [ "${TRAVIS_BRANCH}" != "master" ]; then
+    docker exec build python3 -m pip wheel numpy
+  fi
 after_success:
 # push image
 - >
-  if [ "$TRAVIS_BRANCH" == "master" ]; then
+  if [ "${TRAVIS_BRANCH}" == "master" ]; then
     docker login -u="${DOCKER_USER}" -p="${DOCKER_PASS}"
-    docker push ${TRAVIS_REPO_SLUG}:latest
+    docker push ${DOCKER_HUB_REPO_SLUG}:latest
   fi
