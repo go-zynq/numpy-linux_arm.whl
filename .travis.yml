@@ -35,6 +35,6 @@ after_success:
 # push image
 - >
   if [ "${TRAVIS_BRANCH}" == "master" ]; then
-    docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USER}" -p="${DOCKER_PASS}"
+    docker login -e "${DOCKER_EMAIL}" -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
     docker push ${DOCKER_HUB_REPO_SLUG}
   fi
