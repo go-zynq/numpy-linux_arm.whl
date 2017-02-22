@@ -18,9 +18,9 @@ before_install:
   popd
 script:
 # build image
-- docker build -t ${DOCKER_USER}:${COMMIT} .
+- docker build -t ${DOCKER_HUB_REPO_SLUG}:latest .
 # test image
-- docker run -id --name build ${DOCKER_HUB_REPO_SLUG}:${COMMIT} sh
+- docker run -id --name build ${DOCKER_HUB_REPO_SLUG}:latest sh
 - export NUMPY_VERSION=`docker exec build env|grep NUMPY_VERSION|awk -F = '{print $2}'`
 - >
   if [ "${TRAVIS_BRANCH}" != "master" ]; then
@@ -35,6 +35,5 @@ after_success:
 - >
   if [ "${TRAVIS_BRANCH}" == "master" ]; then
     docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
-    docker tag ${DOCKER_USER}:${COMMIT} ${DOCKER_HUB_REPO_SLUG}:latest
     docker push ${DOCKER_HUB_REPO_SLUG}
   fi
