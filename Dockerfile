@@ -1,4 +1,4 @@
-FROM hypriot/rpi-alpine
+FROM hypriot/rpi-alpine:3.5
 RUN apk add --no-cache --update --virtual=build-dependencies \
   curl \
   gcc \
